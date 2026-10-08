@@ -774,7 +774,7 @@ async def verif_tiktok() -> None:
 
         dernier_video_id = video_id
         sauvegarder_dernier_tiktok_id(video_id)
-        await asyncio.sleep(2)  # Pause de 2s entre chaque envoi si plusieurs vidéos
+        await asyncio.sleep(10)  # Pause de 10s entre chaque envoi lors du rattrapage
 
 
 @verif_tiktok.before_loop
