@@ -713,14 +713,38 @@ def _ytdlp_fetch_sync() -> list[tuple[str, str, str]]:
     return []
 
 
+async def _trouver_dernier_tiktok_discord() -> str | None:
+    """
+    Scanne l'historique du salon TikTok pour extraire l'ID du dernier TikTok posté.
+    Évite de dépendre d'une base de données ou d'un fichier local sur des hôtes stateless.
+    """
+    for guild in bot.guilds:
+        chan = guild.get_channel(ID_SALON_TIKTOK)
+        if not chan:
+            continue
+        try:
+            async for msg in chan.history(limit=50):
+                # On cherche l'ID vidéo dans le contenu du message (posté par le bot ou webhook/modo)
+                match = re.search(r"/video/(\d+)", msg.content)
+                if match:
+                    log.info("TikTok : dernier ID trouvé dans le salon Discord #%s : %s", chan.name, match.group(1))
+                    return match.group(1)
+        except Exception as e:
+            log.warning("Impossible de lire l'historique Discord de #%s : %s", chan.name, e)
+    return None
+
+
 @tasks.loop(minutes=10)
 async def verif_tiktok() -> None:
     """Vérifie toutes les 10 min si de nouvelles vidéos ont été postées et rattrape les manquées."""
     global dernier_video_id
 
-    # 1. Charger depuis le fichier local au démarrage si la mémoire est vide
+    # 1. Charger l'ID au démarrage si la mémoire est vide :
+    #    D'abord en scannant le salon Discord, sinon dans le fichier local
     if dernier_video_id is None:
-        dernier_video_id = lire_dernier_tiktok_id()
+        dernier_video_id = await _trouver_dernier_tiktok_discord()
+        if dernier_video_id is None:
+            dernier_video_id = lire_dernier_tiktok_id()
 
     # 2. Récupérer les vidéos récentes (du plus récent au plus ancien)
     recentes = await asyncio.to_thread(_ytdlp_fetch_sync)
