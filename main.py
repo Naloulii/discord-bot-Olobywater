@@ -19,7 +19,11 @@ from discord.ext import commands, tasks
 from dotenv import load_dotenv
 
 from tiktok_message import formater_message
-from tiktok_storage import lire_dernier_tiktok_id, sauvegarder_dernier_tiktok_id
+from tiktok_storage import (
+    lire_dernier_tiktok_id,
+    sauvegarder_dernier_tiktok_id,
+    push_dernier_tiktok_github,
+)
 
 # ─────────────────────────── Logging ────────────────────────────────────────
 logging.basicConfig(
@@ -756,6 +760,7 @@ async def verif_tiktok() -> None:
         plus_recente_id = recentes[0][0]
         dernier_video_id = plus_recente_id
         sauvegarder_dernier_tiktok_id(plus_recente_id)
+        await push_dernier_tiktok_github(plus_recente_id)
         log.info("TikTok initialisé – vidéo la plus récente mémorisée : %s", plus_recente_id)
         return
 
@@ -798,6 +803,7 @@ async def verif_tiktok() -> None:
 
         dernier_video_id = video_id
         sauvegarder_dernier_tiktok_id(video_id)
+        await push_dernier_tiktok_github(video_id)
         await asyncio.sleep(10)  # Pause de 10s entre chaque envoi lors du rattrapage
 
 

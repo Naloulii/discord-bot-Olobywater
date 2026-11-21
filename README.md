@@ -43,6 +43,8 @@ Create a `.env` file or set the following environment variables in your hosting 
 | `ID_ROLE_NONVERIFIE` | Role ID for `Non-verified` role | `0` (Auto-created on startup if 0) |
 | `ID_SALON_TIKTOK` | Channel ID for TikTok notifications | Optional |
 | `TIKTOK_USER_URL` | TikTok profile URL to track | `https://www.tiktok.com/@olobywater` |
+| `GITHUB_TOKEN` | GitHub Personal Access Token (for auto-pushing `dernier_tiktok.txt`) | Optional |
+| `GITHUB_REPO` | Target GitHub repository (`username/repo`) | `Naloulii/discord-bot-Olobywater` |
 
 ---
 
