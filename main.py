@@ -60,6 +60,7 @@ ID_VALIDATION      = _env_optional("ID_VALIDATION")       # 0 = sera créé au d
 ID_ROLE_NONVERIFIE = _env_optional("ID_ROLE_NONVERIFIE")  # 0 = sera créé au démarrage
 ID_ROLE_MODO       = int(_env("ID_ROLE_MODO"))
 ID_SALON_TIKTOK    = _env_optional("ID_SALON_TIKTOK")     # salon de notif TikTok
+ID_OWNER           = _env_optional("ID_OWNER")            # ID Discord pour les rappels de renouvellement Wispbyte
 
 # URL du compte TikTok à surveiller directement via yt-dlp (sans service RSS payant)
 TIKTOK_USER_URL = os.getenv(
@@ -93,6 +94,9 @@ class MonBot(commands.Bot):
         # Lancement de la surveillance TikTok (si salon configuré)
         if ID_SALON_TIKTOK and not verif_tiktok.is_running():
             verif_tiktok.start()
+        # Lancement du rappel hebdomadaire Wispbyte
+        if not rappel_wispbyte.is_running():
+            rappel_wispbyte.start()
         log.info("setup_hook terminé – DynamicItems et tâches de fond enregistrées.")
 
 bot = MonBot(command_prefix="!", intents=intents)
@@ -810,6 +814,59 @@ async def verif_tiktok() -> None:
 @verif_tiktok.before_loop
 async def before_verif_tiktok() -> None:
     await bot.wait_until_ready()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  TÂCHE DE FOND – Rappel hebdomadaire de connexion Wispbyte (tous les 7 jours)
+# ═══════════════════════════════════════════════════════════════════════════
+
+@tasks.loop(hours=168)  # 168 heures = exactement 7 jours
+async def rappel_wispbyte() -> None:
+    """Envoie un rappel en MP au créateur du bot chaque semaine pour renouveler Wispbyte."""
+    cible = None
+    if ID_OWNER:
+        try:
+            cible = await bot.fetch_user(ID_OWNER)
+        except discord.HTTPException:
+            pass
+
+    # Si ID_OWNER n'est pas configuré, on cherche le propriétaire du bot sur Discord
+    if not cible and bot.application:
+        cible = bot.application.owner
+
+    if not cible:
+        log.warning("Rappel Wispbyte : impossible de déterminer le destinataire du MP.")
+        return
+
+    embed = discord.Embed(
+        title="⏰ Rappel : Garde ton bot en ligne sur Wispbyte !",
+        description=(
+            "Salut !\n\n"
+            "Ceci est ton rappel hebdomadaire pour **garder ton bot en ligne**.\n\n"
+            "⚠️ **Wispbyte exige une connexion au moins une fois toutes les 2 semaines** sur leur panel.\n"
+            "Pour éviter que le serveur gratuit ne s'arrête :\n\n"
+            "👉 **[Clique ici pour te connecter au panel Wispbyte](https://panel.wispbyte.com)**\n\n"
+            "*Une simple visite sur le panel suffit à réinitialiser le délai !*"
+        ),
+        color=discord.Color.gold(),
+        timestamp=datetime.now(timezone.utc),
+    )
+    embed.set_footer(text="Rappel automatique Wispbyte • Toutes les semaines")
+
+    try:
+        await cible.send(embed=embed)
+        log.info("Rappel Wispbyte envoyé en MP avec succès à %s.", cible)
+    except discord.Forbidden:
+        log.warning("Impossible d'envoyer le MP de rappel Wispbyte (MP bloqués pour %s).", cible)
+    except discord.HTTPException as e:
+        log.warning("Erreur lors de l'envoi du MP Wispbyte : %s", e)
+
+
+@rappel_wispbyte.before_loop
+async def before_rappel_wispbyte() -> None:
+    await bot.wait_until_ready()
+    # On attend 7 jours après le démarrage avant d'envoyer le premier rappel
+    await asyncio.sleep(7 * 24 * 3600)
 
 
 # ─────────────────────────── Lancement ──────────────────────────────────────
