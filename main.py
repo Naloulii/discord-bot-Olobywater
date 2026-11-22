@@ -830,9 +830,10 @@ async def rappel_wispbyte() -> None:
         except discord.HTTPException:
             pass
 
-    # Si ID_OWNER n'est pas configuré, on cherche le propriétaire du bot sur Discord
-    if not cible and bot.application:
-        cible = bot.application.owner
+    # Si ID_OWNER n'est pas configuré, on cherche le propriétaire de l'application du bot sur Discord
+    if not cible:
+        app_info = await bot.application_info()
+        cible = app_info.team.owner if app_info.team else app_info.owner
 
     if not cible:
         log.warning("Rappel Wispbyte : impossible de déterminer le destinataire du MP.")
