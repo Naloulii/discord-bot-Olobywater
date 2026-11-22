@@ -846,7 +846,7 @@ async def rappel_wispbyte() -> None:
             "Ceci est ton rappel hebdomadaire pour **garder ton bot en ligne**.\n\n"
             "⚠️ **Wispbyte exige une connexion au moins une fois toutes les 2 semaines** sur leur panel.\n"
             "Pour éviter que le serveur gratuit ne s'arrête :\n\n"
-            "👉 **[Clique ici pour te connecter au panel Wispbyte](https://panel.wispbyte.com)**\n\n"
+            "👉 **[Clique ici pour te connecter au panel Wispbyte](https://wispbyte.com/client/dashboard)**\n\n"
             "*Une simple visite sur le panel suffit à réinitialiser le délai !*"
         ),
         color=discord.Color.gold(),
