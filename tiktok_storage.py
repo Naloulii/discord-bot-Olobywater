@@ -43,13 +43,16 @@ async def push_dernier_tiktok_github(video_id: str) -> bool:
     Met à jour et committe dernier_tiktok.txt directement sur GitHub via l'API REST.
     Nécessite la variable d'environnement GITHUB_TOKEN.
     """
-    if not GITHUB_TOKEN:
-        log.debug("GITHUB_TOKEN non configuré, le push GitHub est ignoré.")
+    token = os.getenv("GITHUB_TOKEN", "").strip()
+    repo = os.getenv("GITHUB_REPO", "Naloulii/discord-bot-Olobywater").strip()
+
+    if not token:
+        log.warning("TikTok GitHub : GITHUB_TOKEN absent dans .env, push ignoré.")
         return False
 
-    url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/dernier_tiktok.txt"
+    url = f"https://api.github.com/repos/{repo}/contents/dernier_tiktok.txt"
     headers = {
-        "Authorization": f"Bearer {GITHUB_TOKEN}",
+        "Authorization": f"Bearer {token}",
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
         "User-Agent": "discord-bot-Olobywater",
