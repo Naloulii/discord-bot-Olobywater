@@ -23,11 +23,6 @@ A custom Discord bot built with `discord.py` (v2.4+) designed for free hosting e
 * **Multi-Video Catch-up & State Persistence**: Saves the last notified video ID in `dernier_tiktok.txt`. If the bot was offline, it detects all missed videos and posts them in chronological order.
 * **Rich Native Previews**: Posts clean notification messages formatted with video title and raw URL to allow Discord to render full native video previews.
 
-### 4. Console Management Scripts
-* `post_tiktok.py`: Manually share a TikTok video link via the console.
-* `delete_message.py`: Delete specific Discord messages by ID via the console.
-* `role_nonverifie.py`: Manually add or remove the `Non-verified` role for any user by ID.
-
 ---
 
 ## ⚙️ Environment Variables
@@ -68,19 +63,3 @@ Create a `.env` file or set the following environment variables in your hosting 
    ```bash
    python main.py
    ```
-
----
-
-## 🛠️ Console Helper Tools
-
-```bash
-# Post a TikTok video manually to the notification channel
-python post_tiktok.py https://www.tiktok.com/@olobywater/video/123456789
-
-# Delete a specific message by ID
-python delete_message.py <message_id> [channel_id]
-
-# Add or remove Non-verified role for a member
-python role_nonverifie.py ajouter <user_id>
-python role_nonverifie.py retirer <user_id>
-```
